@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import 'animate.css'
 
 export interface Clock {
   in:string
@@ -8,12 +7,6 @@ export interface Clock {
 }
 
 const LOCAL_STORAGE_KEY = "react-timeclock"
-const localString = localStorage.getItem(LOCAL_STORAGE_KEY)
-const localData: Clock[] = JSON.parse(localString || "[]")
-
-const updateStorage = (newData: Clock[]) => {
-  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newData))
-}
 
 const duration = (timeIn: string, timeOut: string) => {
   return ((new Date(timeOut).getTime() - new Date(timeIn).getTime())/1000/60/60).toFixed(2)
@@ -34,10 +27,16 @@ const CLOCK_BTN_STYLES = {
   padding: 5
 }
 
-const Timeclock: React.FC = () => {
-  const [data, setData] = useState<Clock[]>(localData)
+export const Timeclock: React.FC = () => {
+  const updateStorage = (newData: Clock[]) => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newData))
+    }
+  }
+
+  const [data, setData] = useState<Clock[]>(JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || "[]"))
   const [accomplished, setAccomplished] = useState<string>()
-  const [totalTime, setTotalTime] = useState(localData.map(d => d.out ? duration(d.in, d.out) : '0').reduce((p, c) => Number(p) + Number(c), 0))
+  const [totalTime, setTotalTime] = useState(JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || "[]").map((d: Clock) => d.out ? duration(d.in, d.out) : '0').reduce((p: number, c: number) => Number(p) + Number(c), 0))
 
   const clockIn = () => {
     const clockIn: Clock = { in: new Date().toLocaleString('en-US') }
@@ -63,7 +62,7 @@ const Timeclock: React.FC = () => {
     setData(newData)
     updateStorage(newData)
     setAccomplished(undefined)
-    setTotalTime(t => clockOut.out ? t + Number(duration(clockOut.in, clockOut.out)) : t)
+    setTotalTime((t: number) => clockOut.out ? t + Number(duration(clockOut.in, clockOut.out)) : t)
   }
 
   return (
@@ -203,5 +202,3 @@ const Timeclock: React.FC = () => {
     </div>
   )
 }
-
-export default Timeclock;

@@ -1,3 +1,8 @@
+## 0.2.0
+
+### Minor Changes
+
+- a5314f4: migrate to pnpm. refactor some dependencies
 
 ## 0.1.0 - 2023-01-15
 

@@ -1,4 +1,5 @@
-# [v0.1.0] - 2023-01-15
+
+## 0.1.0 - 2023-01-15
 
 ### Added
 
@@ -6,7 +7,7 @@
 - stylesheets removed from build files
 - pkg.type changed to module
 
-# [v0.0.0] - 2022-12-27
+## 0.0.0 - 2022-12-27
 
 ### Added
 

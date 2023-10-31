@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 
 export interface Clock {
-  in:string
+  in?:string
   out?:string | null
   accomplished?:string | null
 }
@@ -36,7 +36,7 @@ export const Timeclock: React.FC = () => {
 
   const [data, setData] = useState<Clock[]>(JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || "[]"))
   const [accomplished, setAccomplished] = useState<string>()
-  const [totalTime, setTotalTime] = useState(JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || "[]").map((d: Clock) => d.out ? duration(d.in, d.out) : '0').reduce((p: number, c: number) => Number(p) + Number(c), 0))
+  const [totalTime, setTotalTime] = useState(JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || "[]").map((d: Clock) => (!!d.out && !!d.in) ? duration(d.in, d.out) : '0').reduce((p: number, c: number) => Number(p) + Number(c), 0))
 
   const clockIn = () => {
     const clockIn: Clock = { in: new Date().toLocaleString('en-US') }
@@ -50,7 +50,7 @@ export const Timeclock: React.FC = () => {
   
   const clockOut = () => {
     const clockOut: Clock = {
-      in: data[0].in,
+      in: data[0]?.in,
       out: new Date().toLocaleString('en-US'),
       accomplished: accomplished || ''
     }
@@ -62,7 +62,7 @@ export const Timeclock: React.FC = () => {
     setData(newData)
     updateStorage(newData)
     setAccomplished(undefined)
-    setTotalTime((t: number) => clockOut.out ? t + Number(duration(clockOut.in, clockOut.out)) : t)
+    setTotalTime((t: number) => (!!clockOut.out && !!clockOut.in) ? t + Number(duration(clockOut.in, clockOut.out)) : t)
   }
 
   return (
@@ -104,7 +104,7 @@ export const Timeclock: React.FC = () => {
         </table>
         {data.length > 0
         ? (
-          data[0].out
+          data[0]?.out
           ? <button 
               style={CLOCK_BTN_STYLES}
               type="button"
@@ -155,10 +155,10 @@ export const Timeclock: React.FC = () => {
                   textAlign: 'center'
                 }}
               >
-                <td>{new Date(time.in).toLocaleDateString()}</td>
-                <td>{timeFormat(time.in)}</td>
+                <td>{(time.in ? new Date(time.in): new Date()).toLocaleDateString()}</td>
+                <td>{time.in && timeFormat(time.in)}</td>
                 <td>{time.out && timeFormat(time.out)}</td>
-                <td>{time.out && `${duration(time.in, time.out)}`}</td>
+                <td>{(!!time.out && !!time.in) && `${duration(time.in, time.out)}`}</td>
                 <td>
                   {time.out 
                    ? time.accomplished 
@@ -186,7 +186,7 @@ export const Timeclock: React.FC = () => {
                           setData(d => {
                             const newData = d.filter((_x, index) => index !== idx )
                             updateStorage(newData)
-                            setTotalTime(newData.map(d => d.out ? duration(d.in, d.out) : '0').reduce((p, c) => Number(p) + Number(c), 0))
+                            setTotalTime(newData.map(d => (!!d.out && !!d.in) ? duration(d.in, d.out) : '0').reduce((p, c) => Number(p) + Number(c), 0))
                             return newData
                           })
                         }}
